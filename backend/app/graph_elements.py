@@ -21,8 +21,8 @@ def load_raw(data_dir=None):
     data_dir = data_dir or config.DATA_DIR
     names = ["locations", "persons", "firs", "phones", "calls", "accounts",
               "transactions", "social_profiles", "social_posts", "social_follows",
-              "fir_links", "associations", "located_at"]
-    return {n: _load(n, data_dir) for n in names}
+              "fir_links", "associations", "located_at", "orgs", "vehicles", "aliases", "narratives"]
+    return {n: _load(n, data_dir) for n in names if os.path.exists(os.path.join(data_dir, f"{n}.json"))}
 
 
 def build_graph_elements(raw=None, data_dir=None):
@@ -81,8 +81,22 @@ def build_graph_elements(raw=None, data_dir=None):
     for la in raw["located_at"]:
         add_edge(la["id"], "LOCATED_AT", la["person_id"], la["location_id"],
                   {"timestamp": la["timestamp"], "confidence": "Supported", "source": "Location Ping"})
-    for fo in raw["social_follows"]:
+    for fo in raw.get("social_follows", []):
         add_edge(fo["id"], "FOLLOWS", fo["from_profile_id"], fo["to_profile_id"],
                   {"confidence": "Confirmed", "source": "Platform API (synthetic)"})
+
+    for org in raw.get("orgs", []):
+        add_node("Organization", org)
+    for veh in raw.get("vehicles", []):
+        add_node("Vehicle", veh)
+        if veh.get("owner_id"):
+            add_edge(f"OWNS-{veh['id']}", "OWNS", veh["owner_id"], veh["id"])
+    for alias in raw.get("aliases", []):
+        add_node("Alias", alias)
+        add_edge(f"HAS_ALIAS-{alias['id']}", "HAS_ALIAS", alias["person_id"], alias["id"])
+    for narr in raw.get("narratives", []):
+        add_node("Narrative", narr)
+        if narr.get("related_fir_id"):
+            add_edge(f"MENTIONED_IN-{narr['id']}", "MENTIONED_IN", narr["id"], narr["related_fir_id"])
 
     return nodes, edges

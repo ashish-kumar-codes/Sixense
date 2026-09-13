@@ -29,6 +29,12 @@ N_TRANSACTIONS = int(os.environ.get("SIXENSE_N_TRANSACTIONS", 260))
 N_CALLS = int(os.environ.get("SIXENSE_N_CALLS", 500))
 N_SOCIAL_PROFILES = int(os.environ.get("SIXENSE_N_SOCIAL_PROFILES", 160))
 N_SOCIAL_POSTS = int(os.environ.get("SIXENSE_N_SOCIAL_POSTS", 320))
+
+N_ORGS = int(os.environ.get("SIXENSE_N_ORGS", 20))
+N_VEHICLES = int(os.environ.get("SIXENSE_N_VEHICLES", 40))
+N_ALIASES = int(os.environ.get("SIXENSE_N_ALIASES", 30))
+N_NARRATIVES = int(os.environ.get("SIXENSE_N_NARRATIVES", 15))
+
 RANDOM_SEED = int(os.environ.get("SIXENSE_SEED", 42))
 
 DATA_DIR = os.environ.get("SIXENSE_DATA_DIR", os.path.join(os.path.dirname(__file__), "..", "data"))

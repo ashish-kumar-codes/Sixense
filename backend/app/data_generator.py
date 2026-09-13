@@ -350,6 +350,74 @@ def generate_all(seed=None, out_dir=None):
         "ring_members": {f"ring_{i}": members for i, members in enumerate(rings)},
     }
 
+    # ---------------------------------------------------------------- orgs
+    org_types = ["Company", "NGO", "Shell Corporation", "Trust"]
+    orgs = []
+    for i in range(config.N_ORGS):
+        orgs.append({
+            "id": _rid("ORG", i),
+            "type": "Organization",
+            "name": fake.company(),
+            "org_type": random.choice(org_types),
+            "registration_number": f"REG-{random.randint(100000,999999)}",
+            "location_id": random.choice(locations)["id"],
+        })
+    org_ids = [o["id"] for o in orgs]
+
+    # ---------------------------------------------------------------- vehicles
+    vehicle_types = ["Car", "Truck", "Motorcycle", "Van"]
+    vehicles = []
+    for i in range(config.N_VEHICLES):
+        vehicles.append({
+            "id": _rid("VEH", i),
+            "type": "Vehicle",
+            "license_plate": f"{random.choice(['MH', 'DL', 'KA', 'TN', 'UP', 'GJ'])}-{random.randint(10,99)}-{fake.lexify('??').upper()}-{random.randint(1000,9999)}",
+            "vehicle_type": random.choice(vehicle_types),
+            "owner_id": random.choice(person_ids + org_ids),
+        })
+
+    # ---------------------------------------------------------------- aliases
+    aliases = []
+    for i in range(config.N_ALIASES):
+        p = random.choice(persons)
+        name_parts = p["name"].split()
+        if random.random() < 0.5 and len(name_parts) >= 2:
+            alias_name = f"{name_parts[0][0]}. {name_parts[-1]}"
+        elif len(name_parts) >= 2:
+            alias_name = f"{name_parts[0]} Bhai"
+        else:
+            alias_name = fake.user_name()
+            
+        aliases.append({
+            "id": _rid("ALIAS", i),
+            "type": "Alias",
+            "name": alias_name,
+            "person_id": p["id"],
+        })
+
+    # ---------------------------------------------------------------- narratives
+    narratives = []
+    for i in range(config.N_NARRATIVES):
+        p = random.choice(persons)
+        loc = random.choice(locations)
+        v = random.choice(vehicles)
+        org = random.choice(orgs) if orgs else None
+        
+        templates = [
+            f"During surveillance at {loc['name']}, suspect {p['name']} was seen exiting a {v['vehicle_type']} (License: {v['license_plate']}).",
+            f"Informant reported that {p['name']} is operating out of {loc['name']}.",
+            f"A suspicious {v['vehicle_type']} linked to {p['name']} was flagged near {loc['name']}.",
+            f"Intelligence suggests that {p['name']} is using {org['name']} as a front for moving funds." if org else f"Suspicious activity noted for {p['name']}."
+        ]
+        
+        narratives.append({
+            "id": _rid("NARR", i),
+            "type": "Narrative",
+            "text": random.choice(templates),
+            "related_fir_id": random.choice(firs)["id"],
+            "date_recorded": _rand_date(100).date().isoformat(),
+        })
+
     payload = {
         "locations": locations,
         "persons": persons,
@@ -364,6 +432,10 @@ def generate_all(seed=None, out_dir=None):
         "fir_links": fir_links,
         "associations": associations,
         "located_at": located_at,
+        "orgs": orgs,
+        "vehicles": vehicles,
+        "aliases": aliases,
+        "narratives": narratives,
     }
 
     for name, obj in payload.items():

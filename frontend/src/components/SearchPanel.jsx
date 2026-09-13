@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, User, FileText, Phone, Landmark, MapPin, AtSign } from "lucide-react";
+import { Search, User, FileText, Phone, Landmark, MapPin, AtSign, Building2, Car, VenetianMask, BookOpen } from "lucide-react";
 import api from "../api";
 
 const ICONS = {
@@ -9,6 +9,10 @@ const ICONS = {
   Account: Landmark,
   Location: MapPin,
   SocialProfile: AtSign,
+  Organization: Building2,
+  Vehicle: Car,
+  Alias: VenetianMask,
+  Narrative: BookOpen,
 };
 
 export default function SearchPanel({ selectedId, onSelect, topScores }) {

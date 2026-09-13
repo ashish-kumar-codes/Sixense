@@ -98,6 +98,16 @@ class NetworkXStore:
 
     def to_networkx_view(self):
         return self.graph
+        
+    def add_nodes(self, nodes):
+        for n in nodes:
+            props = {k: v for k, v in n.items() if k not in ("id", "label")}
+            self.graph.add_node(n["id"], label=n.get("label", "Entity"), **props)
+            
+    def add_edges(self, edges):
+        for e in edges:
+            props = {k: v for k, v in e.items() if k not in ("id", "source", "target", "type")}
+            self.graph.add_edge(e["source"], e["target"], key=e.get("id"), type=e.get("type", "RELATED_TO"), **props)
 
 
 _store = None

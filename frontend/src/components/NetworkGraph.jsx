@@ -14,6 +14,10 @@ const TYPE_SHAPE = {
   Location: "star",
   SocialProfile: "hexagon",
   SocialPost: "dot",
+  Organization: "box",
+  Vehicle: "ellipse",
+  Alias: "text",
+  Narrative: "database",
 };
 
 function communityColor(commId) {

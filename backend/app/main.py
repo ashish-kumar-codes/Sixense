@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import ai_summary, config, evaluation
+from . import ai_summary, config, evaluation, nlp_service, entity_resolution
 from .evidence import get_evidence_for_node, get_verification_store
 from .state import get_state
 
@@ -204,6 +204,28 @@ def analytics_recompute():
     state.get_scores(force=True)
     return {"ok": True}
 
+
+# --------------------------------------------------------------- reports
+class UploadReportRequest(BaseModel):
+    text: str
+
+@app.post("/api/reports/upload")
+def upload_report(req: UploadReportRequest):
+    extracted = nlp_service.extract_entities_and_relationships(req.text)
+    
+    gs = get_state().graph_service()
+    resolution = entity_resolution.resolve_entities(extracted, gs)
+    
+    if resolution["new_nodes"]:
+        gs.add_nodes(resolution["new_nodes"])
+    if resolution["new_edges"]:
+        gs.add_edges(resolution["new_edges"])
+        
+    return {
+        "ok": True,
+        "extracted": extracted,
+        "resolution": resolution
+    }
 
 # ------------------------------------------------------------- frontend
 FRONTEND_DIST = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")

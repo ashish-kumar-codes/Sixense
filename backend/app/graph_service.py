@@ -42,6 +42,14 @@ class GraphService:
 
     def get_networkx_view(self):
         return self.store.to_networkx_view()
+        
+    def add_nodes(self, nodes):
+        if hasattr(self.store, 'add_nodes'):
+            self.store.add_nodes(nodes)
+            
+    def add_edges(self, edges):
+        if hasattr(self.store, 'add_edges'):
+            self.store.add_edges(edges)
 
 
 def _build_service():
